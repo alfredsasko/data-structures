@@ -1,0 +1,5 @@
+03_broken_code.png
+.coverage
+/.pytest_cache
+/__pycache__
+/03_test_directory
