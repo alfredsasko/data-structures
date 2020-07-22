@@ -1,4 +1,5 @@
 from collections import deque
+from collections import Iterable
 
 class LRU_Cache(object):
     '''Least recently used cache class.
@@ -29,5 +30,10 @@ class LRU_Cache(object):
         pass
 
     def set(self, key, value):
-        # Set the value if the key is not present in the cache. If the cache is at capacity remove the oldest item.
-        pass
+        # Set the value if the key is not present in the cache.
+        self.memory[key] = value
+        self._lru.appendleft(key)
+
+        # If the cache is at capacity remove the oldest item.
+        if len(self.memory) > self.capacity:
+            del self.memory[self._lru.pop()]

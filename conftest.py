@@ -28,30 +28,7 @@ valid_args = {
     'number': 1,
     'string': 'string',
     'none': None,
-    'empty list': [],
-    'empty dictionary': {},
     'arbitrary object': object()
-}
-
-args_structures = {
-    'list': list,
-    'set': set,
-    'tuple': tuple,
-    'dict': dict,
-}
-
-args_multiple_structures = {
-    'multiple list':['key1', 'value1', 'key2', 'value2'],
-    'multiple set': {'key1', 'value1', 'key2', 'value2'},
-    'multiple tuple': ('key1', 'value1', 'key2', 'value2'),
-    'tuple of tuples': (('key1', 'value1'), ('key2', 'value2')),
-    'multiple dict': {'key1': 'value1', 'key2': 'value2'}
-}
-
-args_invalid_multiple_structures = {
-    'odd items list':['key1', 'value1', 'key2', 'value2'],
-    'odd items tuple': ('key1', 'value1', 'key2', 'value2'),
-    'tuple of odd tuples': (('key1', 'value1'), ('key2')),
 }
 
 
@@ -80,22 +57,15 @@ def key(request):
 def value(request):
     return request.param
 
-@pytest.fixture(params=args_structures.values(), ids=args_structures.keys())
-def key_value_pair(request):
-    def _key_value_pair(request, key_, value_):
-        if request.param == dict:
-            return request.param([(key_, value_)])
-        else:
-            return request.param((key_, value_))
+@pytest.fixture
+def full_capacity_cache(cache):
+    for key in range(cache.capacity):
+        if key == 0:
+            rlu_key = key
+            rlu_value = key
+        value = key
+        cache.set(key, value)
 
-    return _key_value_pair
-
-@pytest.fixture(params=args_multiple_structures.values(),
-                ids = args_multiple_structures.keys())
-def multiple_key_value_pair(request):
-    return request.param
-
-@pytest.fixture(params=args_invalid_multiple_structures.values(),
-                ids = args_invalid_multiple_structures.keys())
-def invalid_multiple_key_value_pair(request):
-    return request.param
+    new_key = key + 1
+    new_value = value + 1
+    return new_key, new_value, rlu_key, rlu_value, cache

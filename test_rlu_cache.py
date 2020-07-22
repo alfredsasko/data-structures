@@ -20,38 +20,18 @@ class TestCache:
             chash = LRU_Cache(invalid_capacity)
 
     def test_set_method_args(self, cache, key, value):
-        pytest.skip()
+        cache_size = len(cache.memory)
         cache.set(key, value)
-        assert (cache.memory[key] == value)
+        assert ((cache.memory[key] == value)
+                and (len(cache.memory) == cache_size + 1))
 
-    def test_set_method_args_structure(self, cache, key_value_pair):
-        pytest.skip()
-        key, value = 'key', 'value'
-        key_value = key_value_pair(key, value)
-        if isinstance(key_value, set):
-            with pytest.raises(AssertionError):
-                cache.set(key_value)
-        else:
-            assert (cache.memory[key] == value)
+    def test_set_method_over_capacity(self, full_capacity_cache):
+        new_key, new_value, rlu_key, rlu_value, cache = full_capacity_cache
+        cache.set(new_key, new_value)
+        assert ((cache.memory[new_key] == new_value)
+                and (rlu_key not in cache.memory)
+                and (len(cache.memory) == cache.capacity))
 
-    def test_set_method_args_multiple_structure(
-        self, cache, multiple_key_value_pair):
-
-        pytest.skip()
-        key_value = key_value_pair(multiple_value_pair)
-        if isinstance(multiple_value_pair, set):
-            with pytest.raises(AssertionError):
-                cache.set(multiple_value_pair)
-        else:
-            for key, value in multiple_key_value_pair:
-                assert (cache.memory[key] == value)
-
-    def test_set_method_args_invalid_multiple_structure(
-        self, cache, invalid_multiple_key_value_pair):
-
-        pytest.skip()
-        with pytest.raises(AssertionError):
-            cache.set(invalid_multiple_key_value_pair)
 
 # cachee = LRU_Cache(5)
 #
