@@ -27,3 +27,37 @@ For the current problem, you can consider the size of cache = 5.
 Cash is used to access elements very frequently. So it is imperative that these operations have constant time complexity. The Python dictionary can be used for this purpose.
 
 Keeping a track of least recently used element can be efficiently done with FIFO data structure. The Python Deque can be used for this purpose (List is also possible but is less efficient)
+
+### 1.3. Time Complexity
+#### Method `set()`
+```
+def set(self, key, value):
+    '''Set the value if the key is not present in the cache
+    If the cache is at capacity remove the oldest item.
+    '''
+    self.memory[key] = value
+    self._lru.appendleft(key)
+
+    if len(self.memory) > self.capacity:
+        del self.memory[self._lru.pop()]
+```
+| Command 	| Time Complexity 	|
+|-	|:-:	|
+| dict.\_\_getitem\_\_() 	| O(1) 	|
+| deque.appendleft() 	| O(1) 	|
+| dict.\_\_len\_\_() 	| O(1) 	|
+| Worst Total 	| O(1) 	|
+
+## Method `get()`
+```
+def get(self, key):
+    'Retrieve item from provided key. Return None if nonexistent.'
+    try:
+        return self.memory[key]
+    except KeyError:
+        return None
+```
+| Command                	| Time Complexity 	|
+|------------------------	|:---------------:	|
+| dict.\_\_getitem\_\_() 	|       O(1)      	|
+| Worst Total            	|       O(1)      	|
