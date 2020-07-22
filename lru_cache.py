@@ -27,8 +27,10 @@ class LRU_Cache(object):
 
     def get(self, key):
         'Retrieve item from provided key. Return None if nonexistent.'
-
-        return self.memory[key] if key in self.memory else None
+        try:
+            return self.memory[key]
+        except KeyError:
+            return None
 
     def set(self, key, value):
         '''Set the value if the key is not present in the cache
