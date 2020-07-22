@@ -26,14 +26,16 @@ class LRU_Cache(object):
         self._lru = deque()
 
     def get(self, key):
-        # Retrieve item from provided key. Return None if nonexistent.
-        pass
+        'Retrieve item from provided key. Return None if nonexistent.'
+
+        return self.memory[key] if key in self.memory else None
 
     def set(self, key, value):
-        # Set the value if the key is not present in the cache.
+        '''Set the value if the key is not present in the cache
+        If the cache is at capacity remove the oldest item.
+        '''
         self.memory[key] = value
         self._lru.appendleft(key)
 
-        # If the cache is at capacity remove the oldest item.
         if len(self.memory) > self.capacity:
             del self.memory[self._lru.pop()]

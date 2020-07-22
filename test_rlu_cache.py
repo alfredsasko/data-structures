@@ -32,6 +32,13 @@ class TestCache:
                 and (rlu_key not in cache.memory)
                 and (len(cache.memory) == cache.capacity))
 
+    def test_set_method_valid_key(self, full_capacity_cache):
+        _, _, in_key, in_value, cache = full_capacity_cache
+        assert cache.get(in_key) == in_value
+
+    def test_set_method_invalid_key(self, full_capacity_cache):
+        new_key, _, _, _, cache = full_capacity_cache
+        assert not cache.get(new_key)
 
 # cachee = LRU_Cache(5)
 #
