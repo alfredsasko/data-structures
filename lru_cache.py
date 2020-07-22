@@ -1,5 +1,4 @@
 from collections import deque
-from collections import Iterable
 
 class LRU_Cache(object):
     '''Least recently used cache class.

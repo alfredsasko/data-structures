@@ -41,12 +41,12 @@ def set(self, key, value):
     if len(self.memory) > self.capacity:
         del self.memory[self._lru.pop()]
 ```
-| Command 	| Time Complexity 	|
-|-	|:-:	|
-| dict.\_\_getitem\_\_() 	| O(1) 	|
-| deque.appendleft() 	| O(1) 	|
-| dict.\_\_len\_\_() 	| O(1) 	|
-| Worst Total 	| O(1) 	|
+| Command                	| Time Complexity 	|
+|------------------------	|:---------------:	|
+| dict.\_\_getitem\_\_() 	|       O(1)      	|
+| deque.appendleft()     	|       O(1)      	|
+| dict.\_\_len\_\_()     	|       O(1)      	|
+| Worst Total            	|       O(1)      	|
 
 ## Method `get()`
 ```
@@ -61,3 +61,44 @@ def get(self, key):
 |------------------------	|:---------------:	|
 | dict.\_\_getitem\_\_() 	|       O(1)      	|
 | Worst Total            	|       O(1)      	|
+
+## 2. Finding Files
+
+### 2.1. Problem Description
+For this problem, the goal is to write code for finding all files under a directory (and all directories beneath it) that end with ".c"
+
+Here is an example of a test directory listing, which can be downloaded [here](https://s3.amazonaws.com/udacity-dsand/testdir.zip)
+
+```
+./testdir
+./testdir/subdir1
+./testdir/subdir1/a.c
+./testdir/subdir1/a.h
+./testdir/subdir2
+./testdir/subdir2/.gitkeep
+./testdir/subdir3
+./testdir/subdir3/subsubdir1
+./testdir/subdir3/subsubdir1/b.c
+./testdir/subdir3/subsubdir1/b.h
+./testdir/subdir4
+./testdir/subdir4/.gitkeep
+./testdir/subdir5
+./testdir/subdir5/a.c
+./testdir/subdir5/a.h
+./testdir/t1.c
+./testdir/t1.h
+```
+
+Python's os module will be useful—in particular, you may want to use the following resources:
+
+ - [`os.path.isdir(path)`](https://docs.python.org/3.7/library/os.path.html#os.path.isdir)
+ - [`os.path.isfile(path)`](https://docs.python.org/3.7/library/os.path.html#os.path.isfile)
+ - [`os.listdir(directory)`](https://docs.python.org/3.7/library/os.html#os.listdir)
+ - [`os.path.join(…)`](https://docs.python.org/3.7/library/os.path.html#os.path.join)
+
+Note: `os.walk()` is a handy Python method which can achieve this task very easily. However, for this problem you are not allowed to use `os.walk()`.
+
+### 2.2. Design Choices
+`FileManager` class will be designed to handle the task in question. The simple list will be used to retrieve searched file names.
+
+### 2.3. Time Complexity

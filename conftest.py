@@ -2,7 +2,11 @@
 '''
 
 import pytest
+import tempfile
+import shutil
+
 from lru_cache import LRU_Cache
+from find_files import FileManager
 
 # Parameters for testing LRU_Chache class
 # ---------------------------------------
@@ -69,3 +73,23 @@ def full_capacity_cache(cache):
     new_key = key + 1
     new_value = value + 1
     return new_key, new_value, rlu_key, rlu_value, cache
+
+
+# Parameters for testing FileManager
+# ---------------------------------------
+
+invalid_path_dict = {
+    'not existing path': 'C:\not_existing',
+    'no path format': 'no path format',
+    'number': 1
+}
+
+@pytest.fixture(scope='class')
+def valid_path():
+    cwd = shutil.copytree('03_test_directory', 'temp_dir', dirs_exist_ok=True)
+    yield cwd
+    shutil.rmtree(cwd)
+
+@pytest.fixture(params=invalid_path_dict.values(), ids=invalid_path_dict.keys())
+def invalid_path(request):
+    return request.param

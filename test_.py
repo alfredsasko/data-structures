@@ -2,6 +2,8 @@
 
 import pytest
 from lru_cache import LRU_Cache
+from find_files import FileManager
+import os
 
 
 class TestCache:
@@ -40,19 +42,17 @@ class TestCache:
         new_key, _, _, _, cache = full_capacity_cache
         assert not cache.get(new_key)
 
-# cachee = LRU_Cache(5)
-#
-# cachee.set(1, 1);
-# cachee.set(2, 2);
-# cachee.set(3, 3);
-# cachee.set(4, 4);
-#
-#
-# cachee.get(1)       # returns 1
-# cachee.get(2)       # returns 2
-# cachee.get(9)      # returns -1 because 9 is not present in the cache
-#
-# cachee.set(5, 5)
-# cachee.set(6, 6)
-#
-# cachee.get(3)      # returns -1 because the cache reached it's capacity and 3 was the least recently used entry
+
+class TestFileManager:
+
+    def test_init_method_no_args(self):
+        file_manager = FileManager()
+        assert file_manager.root == os.getcwd()
+
+    def test_init_method_valid_args(self, valid_path):
+        file_manager = FileManager(valid_path)
+        assert file_manager.root == valid_path
+
+    def test_init_method_invalid_args(self, invalid_path):
+        with pytest.raises(AssertionError):
+            file_manger = FileManager(invalid_path)
