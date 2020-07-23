@@ -29,7 +29,7 @@ Cash is used to access elements very frequently. So it is imperative that these 
 Keeping a track of least recently used element can be efficiently done with FIFO data structure. The Python Deque can be used for this purpose (List is also possible but is less efficient)
 
 ### 1.3. Time Complexity
-#### Method `set()`
+#### Method `Cache.set()`
 ```
 def set(self, key, value):
     '''Set the value if the key is not present in the cache
@@ -48,7 +48,7 @@ def set(self, key, value):
 | dict.\_\_len\_\_()     	|       O(1)      	|
 | Worst Total            	|       O(1)      	|
 
-## Method `get()`
+## Method `Cache.get()`
 ```
 def get(self, key):
     'Retrieve item from provided key. Return None if nonexistent.'
@@ -99,6 +99,56 @@ Python's os module will be useful—in particular, you may want to use the follo
 Note: `os.walk()` is a handy Python method which can achieve this task very easily. However, for this problem you are not allowed to use `os.walk()`.
 
 ### 2.2. Design Choices
-`FileManager` class will be designed to handle the task in question. The simple list will be used to retrieve searched file names.
+`FileManager` class will be designed to handle the task in question. The simple for loop will be used to retrieve the list of filenames and list of child directories. The queue will be used to handle the concurrent processing  using threads to reduce execution time and aggregate file list from whole directory tree.
 
 ### 2.3. Time Complexity
+As all the files need to be searched to retrieve the ones matching the request, the worst time complexity is $O(n C^k)$. As directory tree structure in the file system can be huge and demanding regarding I/O operations the concurrency using threads will be applied to reduce execution time $O(\frac{n C^k}{t})$, where $t$ is number of threads. The time complexity of the searching algorithm stays the same O(n).
+
+#### Method `FileManager.find_files()`
+```
+def _find_files(self, path, query, regex=False):
+    '''Returns list of querying files in specified directory (path) and
+    list of child directories. Method is used for internal purposes and is
+    wrapped into multi-threading interface to return files from whole
+    directory tree.
+    '''
+
+    assert isinstance(query, str), 'Query needs to be string.'
+    assert isinstance(path, (str, pathlib.Path)), \
+    'Path needs to be str or pathlib.Path object.'
+
+    path = pathlib.Path(path) if isinstance(path, str) else path
+
+    assert path.is_dir(), 'Directory not found in {}'.format(os.getcwd())
+
+    if regex:
+        query = re.compile(query)
+
+    subdirs, files = [], []
+    for p in path.iterdir():
+
+        if p.is_dir() and not p.is_symlink():
+            subdirs.append(p)
+
+        if p.is_file():
+            file_path = p.as_posix()
+
+            if ((regex and query.match(file_path))
+                or ((not regex) and (query in file_path))):
+
+                files.append(file_path)
+
+    return subdirs, files
+```
+
+| Command              	| Time Complexity 	|
+|----------------------	|:---------------:	|
+| path.iterdir()       	|      $O(n)$     	|
+| &nbsp;&nbsp;&nbsp;&nbsp;query.match()    	|     $O(C^k)$    	|
+| &nbsp;&nbsp;&nbsp;&nbsp;str.\_\_contains\_\_() 	|      $O(s)$     	|
+| Worst Total          	|    $O(n C^k)$   	|
+
+- n - number of directories and file in directory tree
+- k - length of regular expression
+- C - regular expression alternations
+- s - length of the string
