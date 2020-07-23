@@ -43,16 +43,31 @@ class TestCache:
         assert not cache.get(new_key)
 
 
+@pytest.mark.usefixtures('temp_directory')
 class TestFileManager:
 
-    def test_init_method_no_args(self):
-        file_manager = FileManager()
-        assert file_manager.root == os.getcwd()
+    def test_find_files_method_valid_path(
+        self, file_manager, in_query, valid_path, right_files):
 
-    def test_init_method_valid_args(self, valid_path):
-        file_manager = FileManager(valid_path)
-        assert file_manager.root == valid_path
+        searched_files = file_manager.find_files(path=valid_path, **in_query)
+        assert set(searched_files) == right_files
 
-    def test_init_method_invalid_args(self, invalid_path):
+    def test_find_files_method_file_not_found(
+        self, file_manager, out_query, valid_path):
+
+        searched_files = file_manager.find_files(path=valid_path, **out_query)
+        assert not searched_files
+
+    def test_find_files_method_invalid_path(
+        self, file_manager, in_query, invalid_path):
+
         with pytest.raises(AssertionError):
-            file_manger = FileManager(invalid_path)
+            searched_files = file_manager.find_files(
+                path=invalid_path, **in_query)
+
+    def test_find_files_method_invalid_query(
+        self, file_manager, invalid_query, valid_path):
+
+        with pytest.raises(AssertionError):
+            searched_files = file_manager.find_files(
+                path=valid_path, **invalid_query)
