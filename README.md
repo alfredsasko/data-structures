@@ -102,7 +102,7 @@ Note: `os.walk()` is a handy Python method which can achieve this task very easi
 `FileManager` class will be designed to handle the task in question. The simple for loop will be used to retrieve the list of filenames and list of child directories. The queue will be used to handle the concurrent processing  using threads to reduce execution time and aggregate file list from whole directory tree.
 
 ### 2.3. Time Complexity
-As all the files need to be searched to retrieve the ones matching the request, the worst time complexity is $O(n C^k)$. As directory tree structure in the file system can be huge and demanding regarding I/O operations the concurrency using threads will be applied to reduce execution time $O(\frac{n C^k}{t})$, where $t$ is number of threads. The time complexity of the searching algorithm stays the same O(n).
+As all the files need to be searched to retrieve the ones matching the request, the worst time complexity is O(n C^k). As directory tree structure in the file system can be huge and demanding regarding I/O operations the concurrency using threads will be applied to reduce execution time O(n C^k / t), where t is number of threads. The time complexity of the searching algorithm stays the same O(n).
 
 #### Method `FileManager.find_files()`
 ```
@@ -143,10 +143,10 @@ def _find_files(self, path, query, regex=False):
 
 | Command              	| Time Complexity 	|
 |----------------------	|:---------------:	|
-| path.iterdir()       	|      $O(n)$     	|
-| &nbsp;&nbsp;&nbsp;&nbsp;query.match()    	|     $O(C^k)$    	|
-| &nbsp;&nbsp;&nbsp;&nbsp;str.\_\_contains\_\_() 	|      $O(s)$     	|
-| Worst Total          	|    $O(n C^k)$   	|
+| path.iterdir()       	|      O(n)     	|
+| &nbsp;&nbsp;&nbsp;&nbsp;query.match()    	|     O(C^k)    	|
+| &nbsp;&nbsp;&nbsp;&nbsp;str.\_\_contains\_\_() 	|      O(s)     	|
+| Worst Total          	|    O(n C^k)   	|
 
 - n - number of directories and file in directory tree
 - k - length of regular expression
