@@ -1,11 +1,14 @@
-'''Modul contains test methods for LRU_Cache class'''
+'''Modul contains test methods for 7 data structure tasks'''
 
 import pytest
-from lru_cache import LRU_Cache
-from find_files import FileManager
 import os
 
+from lru_cache import LRU_Cache
+from find_files import FileManager
+from compression import HuffmanCompressor
 
+
+# Tests for task 1: Least Recenty Used Cache
 class TestCache:
 
     def test_init_method(self, cache, standard_capacity):
@@ -43,6 +46,7 @@ class TestCache:
         assert not cache.get(new_key)
 
 
+# Tests for task 2: Finding Files
 @pytest.mark.usefixtures('temp_directory')
 class TestFileManager:
 
@@ -71,3 +75,28 @@ class TestFileManager:
         with pytest.raises(AssertionError):
             searched_files = file_manager.find_files(
                 path=valid_path, **invalid_query)
+
+
+# Tests for task 3: Huffman Coding
+class TestHuffmanCompressor:
+
+    def test_init_method_valid_args(self, valid_hf_set):
+        valid_str, hf_tree, encode_map, _ = valid_hf_set
+        hc = HuffmanCompressor(valid_str)
+        assert ((hc.string == valid_str)
+                and (hc._root.to_list() == hf_tree)
+                and (hc._encode_map == encode_map))
+
+    def test_init_method_invalid_args(self, invalid_str):
+        with pytest.raises(AssertionError):
+            hc = HuffmanCompressor(invalid_str)
+
+    def test_encode_method(self, valid_hf_set):
+        valid_str, _, _, encoded_str = valid_hf_set
+        hc = HuffmanCompressor(valid_str)
+        assert hc.encode() == encoded_str
+
+    def test_decode_method(self, valid_hf_set):
+        valid_str, _, _, encoded_str = valid_hf_set
+        hc = HuffmanCompressor(valid_str)
+        assert hc.decode(encoded_str) == valid_str
