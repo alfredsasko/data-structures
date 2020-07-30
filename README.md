@@ -258,6 +258,117 @@ You will have to implement the logic for both encoding and decoding in the follo
 Check this website to visualize the Huffman encoding for any string message - [Huffman Visualization](https://people.ok.ubc.ca/ylucet/DS/Huffman.html)
 
 ### 3.2. Design Choices
-`HuffmanCompressor` class will be designed to implement Huffman encoding and decoding functions. Merging operation of two minimum frequency items requires frequent sorting and selecting nodes with minimum frequency. The __min heap__ structure is best for this purpose with time complexity O(1) for `peek` operation and O(log n) for `push` and `pop` operation. The python already implement min heap in its `heapq` library.
+`HuffmanCompressor` class will be designed to implement Huffman encoding and decoding functions. Building the Huffman tree requires searching for minimum frequency items and frequent sorting. The __min heap__ structure is best for this purpose with time complexity O(1) for `peek()` operation and O(log n) for `push()` and `pop()` operation. The python already implement min heap in its `heapq` library.
+
+The encoding table is build up by depth first search algorithm. `encode()` method will use it to get character binary codes. It will be stored as hash-table - dictionary implementation in python, where time complexity for get and set method is O(1).
+
+`decode` method will traverse Huffman tree with search sequence determined by binary code of encoded string with time complexity of O(k n), where n is number of bits in encoded string and k is number of characters in Huffman encode table.
+
+The reason for k is that implementation is using while loop where bit index is only increased if current node has child nodes. For situations where algorithm hits leaf the index stays constant only pointer jumps to root to search for next character. For the length of string going to infinity, with relatively small encode table we can generalize to O(n).
 
 ### 2.3. Time Complexity
+
+#### Method `HuffmanCompressor.encode()`
+```
+def encode(self):
+    '''Returns Huffman binary code representation of the string.'''
+    bin_str = ''.join([self._encode_map[char] for char in self.string])
+    return bin_str
+
+def _get_encode_map(self):
+    '''Builds Huffman mapping of characters to binary codes'''
+    return self._get_bin_code(self._root, [], {})
+
+def _get_bin_code(self, node, bin_code, bin_dict):
+
+    if (not node.left) and (not node.right):
+        char = node[1]
+        if char:
+            if node is self._root:
+                bin_dict[char] = '0'
+            else:
+                bin_dict[char] = ''.join(bin_code)
+        else:
+            raise AttributeError(
+                'The leaf node needs to be valid charater node')
+
+    # Depth First Search builds the Huffman encoding dictionary
+    if node.left:
+        left_code = bin_code.copy()
+        left_code.append('0')
+        bin_dict = self._get_bin_code(node.left, left_code, bin_dict)
+
+    if node.right:
+        right_code = bin_code.copy()
+        right_code.append('1')
+        bin_dict = self._get_bin_code(node.right, right_code, bin_dict)
+
+    return bin_dict
+```
+
+| Command              	| Time Complexity 	|
+|----------------------	|:---------------:	|
+| self._get_bin_code() 	|       O(n)      	|
+| Worst Total          	|       O(n)      	|
+
+#### Method `HuffmanCompressor.decode()`
+```
+def decode(self, bin_str=None, error='raise'):
+      '''Returns string representation of huffman binary code.
+
+      Args:
+          bin_str(string): Huffman encoded string in binary code. Optional,
+              string attribute used if not provided.
+          errors(string): Error handling and encoding sum check.
+              'ignore': Ignores sum check error and strips last bits which
+                  does not represent any character in encoded_map
+              'warn': As ignore, but raises warning.
+              'raise': Raises attribute exception
+
+      '''
+      bin_str = bin_str if bin_str else self.encode()
+
+      decoded_str = ''
+      bit_idx = 0
+      node = self._root
+      while bit_idx < len(bin_str):
+          prev_node = node
+
+          # traverse Huffman tree
+          if bin_str[bit_idx] == '0':
+              node = node.left
+          elif bin_str[bit_idx] == '1':
+              node = node.right
+          else:
+              raise AssertionError('bin_str needs to be binary sequence.')
+
+          # Update decoded string and increase bit index
+          if node:
+              char = node[1]
+              if char:
+                  decoded_str += char
+              bit_idx += 1
+
+          # Jump back to root
+          else:
+              # Prevent infinite loop for example decode
+              # '1' with Huffmant tree [(7, ''), (7, 'A'), None]
+              # or '0' with [(7, ''), None, (7, 'A')]
+              if prev_node is self._root:
+                  self._check_sum(node, 'raise')
+              else:
+                  node = self._root
+
+      # Check sum test
+      last_node = node
+      self._check_sum(last_node, error)
+
+      return decoded_str
+```
+| Command              	| Time Complexity 	|
+|----------------------	|:---------------:	|
+| while loop          	|   O(n k)         	|
+| Worst Total          	|   O(n)          	|
+
+ - n - number of characters in string
+ - k - number of characters in Huffman encode table

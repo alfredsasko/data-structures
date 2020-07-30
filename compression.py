@@ -103,6 +103,7 @@ class HuffmanCompressor:
                 raise AttributeError(
                     'The leaf node needs to be valid charater node')
 
+        # Depth First Search builds the Huffman encoding dictionary
         if node.left:
             left_code = bin_code.copy()
             left_code.append('0')
