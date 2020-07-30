@@ -169,7 +169,8 @@ valid_hf_set_dict = {
         'root': [(25, ''),
                  (11, ''), (14, ''),
                  (5, ''), (6, 'E'), (7, 'A'), (7, 'C'),
-                 (2, 'D'), (3, 'B')],
+                 (2, 'D'), (3, 'B'), None, None, None, None, None, None,
+                 None, None, None, None],
         'encode_map': {'D': '000',
                        'B': '001',
                        'E': '01',
@@ -181,8 +182,43 @@ valid_hf_set_dict = {
     'one_letter': {
         'string': 'AAAAAAA',
         'encode_map': {'A': '0'},
-        'root': [(7, 'A')],
+        'root': [(7, ''),
+                 (7, 'A'), None,
+                 None, None],
         'encoded_string': '0000000'
+    },
+    'mixed_sequence': {
+        'string': ('Here is the mixed Sequence of 1 number and '
+                   'special characters like $ # etc.'),
+        'encode_map': {
+            ' ': '00', 'H': '010000', 'S': '010001', 'd': '01001', 'a': '0101',
+            'k': '011000', 'o': '011001', 'b': '011010', 'f': '011011',
+            'p': '011100', 'q': '011101', '#': '011110', '$': '011111',
+            'h': '10000', 'l': '10001', 'm': '10010', 'u': '10011',
+            'c': '1010', 'x': '101100', '.': '1011010', '1': '1011011',
+            'n': '10111', 'e': '110', 's': '11100', 't': '11101',
+            'i': '11110', 'r': '11111'
+        },
+        'root': [
+            (75, ''), (30, ''), (45, ''), (14, ' '), (16, ''), (19, ''),
+            (26, ''), None, None, (8, ''), (8, ''), (8, ''), (11, ''),
+            (12, 'e'), (14, ''), (4, ''), (4, 'a'), (4, ''), (4, ''), (4, ''),
+            (4, ''), (5, 'c'), (6, ''), None, None, (6, ''), (8, ''), (2, ''),
+            (2, 'd'), None, None, (2, ''), (2, ''), (2, ''), (2, ''), (2, 'h'),
+            (2, 'l'), (2, 'm'), (2, 'u'), None, None, (3, ''), (3, 'n'),
+            (3, 's'), (3, 't'), (4, 'i'), (4, 'r'), (1, 'H'), (1, 'S'), None,
+            None, (1, 'k'), (1, 'o'), (1, 'b'), (1, 'f'), (1, 'p'), (1, 'q'),
+            (1, '#'), (1, '$'), None, None, None, None, None, None, None, None,
+            (1, 'x'), (2, ''), None, None, None, None, None, None, None, None,
+             None, None, None, None, None, None, None, None, None, None, None,
+             None, None, None, None, None, None, None, None, None, None, None,
+             None, None, (1, '.'), (1, '1'), None, None, None, None
+        ],
+        'encoded_string': ('01000011011111110001111011100001110110000110001001'
+'01111010110011001001000100011100111011001111010111101011000011001011011001011'
+'01100101111001110010011010110111110001011011101001001110001110011010101111001'
+'01100010010101000001011111101011010111011101111111100001000111110011000110000'
+'1111100011110001101110110101011010')
     }
 }
 
@@ -194,6 +230,32 @@ invalid_str_dict = {
     'empty_tuple': tuple()
 }
 
+invalid_hf_set_dict = {
+    'non_binary_string': {
+        'string': 'AAAAAAA',
+        'encoded_string': '0a'
+    },
+    'non_matched_binary_string': {
+        'string': 'AAAAAAA',
+        'encoded_string': '1'
+    }
+}
+
+invalid_sum_check_set_dict = {
+    'sum_check_error': {
+        'string': 'AAAAAAABBBCCCCCCCDDEEEEEE',
+        'encoded_string':
+            '10101010101010001001001111111111111110000000101010101010'
+    }
+}
+
+sum_check_error_dict = {
+    'ignore': 'ignore',
+    'warning': 'warning',
+    'raise': 'raise',
+    'not_implemented': 'not_implemented'
+}
+
 @fixture(params=valid_hf_set_dict.values(), ids=valid_hf_set_dict.keys())
 def valid_hf_set(request):
     return (request.param['string'],
@@ -203,4 +265,16 @@ def valid_hf_set(request):
 
 @fixture(params=invalid_str_dict.values(), ids=invalid_str_dict.keys())
 def invalid_str(request):
+    return request.param
+
+@fixture(params=invalid_hf_set_dict.values(), ids=invalid_hf_set_dict.keys())
+def invalid_hf_set(request):
+    return request.param['string'], request.param['encoded_string']
+
+@fixture(params=invalid_sum_check_set_dict.values(), ids=invalid_sum_check_set_dict.keys())
+def invalid_sum_check_set(request):
+    return request.param['string'], request.param['encoded_string']
+
+@fixture(params=sum_check_error_dict.values(), ids=sum_check_error_dict.keys())
+def sum_check_error(request):
     return request.param

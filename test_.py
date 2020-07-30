@@ -96,7 +96,35 @@ class TestHuffmanCompressor:
         hc = HuffmanCompressor(valid_str)
         assert hc.encode() == encoded_str
 
-    def test_decode_method(self, valid_hf_set):
+    def test_decode_method_valid_arg(self, valid_hf_set):
         valid_str, _, _, encoded_str = valid_hf_set
         hc = HuffmanCompressor(valid_str)
         assert hc.decode(encoded_str) == valid_str
+
+    def test_decode_method_invalid_arg(self, invalid_hf_set):
+        valid_str, invalid_bin_str = invalid_hf_set
+        hc = HuffmanCompressor(valid_str)
+        with pytest.raises(AssertionError):
+            hc.decode(invalid_bin_str)
+
+    def test_decode_method_sum_check_err(
+        self, invalid_sum_check_set, sum_check_error):
+
+        string, invalid_encoded_str = invalid_sum_check_set
+        hc = HuffmanCompressor(string)
+
+        if sum_check_error == 'ignore':
+            assert hc.decode(invalid_encoded_str, sum_check_error) == string
+
+        elif sum_check_error == 'warn':
+            with pytest.warns():
+                decoded_str = hc.decode(invalid_encoded_str, sum_check_error)
+            assert decoded_str == string
+
+        elif sum_check_error == 'raise':
+            with pytest.raises(AssertionError):
+                decoded_str = hc.decode(invalid_encoded_str, sum_check_error)
+
+        else:
+            with pytest.raises(NotImplementedError):
+                decoded_str = hc.decode(invalid_encoded_str, sum_check_error)

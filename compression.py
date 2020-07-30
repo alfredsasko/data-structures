@@ -1,6 +1,7 @@
 ''''Modul contains implementation of Huffman Compression algorithm.'''
 
 import sys
+import warnings
 import heapq
 from collections import deque
 from collections import Counter
@@ -19,13 +20,14 @@ class Node(tuple):
         self.right = None
 
     def to_list(self):
+        '''Print branch of the node in breath first fession into list.'''
         queue = deque()
         queue.appendleft(self)
-        visit_list = []
+        visit_list = [self]
 
         while len(queue):
             node = queue.pop()
-            visit_list.append(node)
+            visit_list.extend((node.left, node.right))
 
             if node.left:
                 queue.appendleft(node.left)
@@ -40,27 +42,34 @@ class HuffmanCompressor:
     '''Huffman string compression implementation.
 
     Attributes:
-        string(str): String which needs to be compressed.
+        string(str): String to encode and build Huffman tree.
 
     Methods:
         encode(): Encode string to binary representation
-        decode(string): Decode binary representation back to string.
+        decode(string): Decode Huffman binary representation back to string.
     '''
     def __init__(self, string):
         assert isinstance(string, str) and string, \
         'Argument needs to be a not empty string.'
 
         self.string = string
-        self._root = self._get_root()
+        self._root = self._build_hf_tree()
         self._encode_map = self._get_encode_map()
 
-    def _get_root(self):
-        '''Builds Huffman tree.'''
+    def _build_hf_tree(self):
         counter = [Node((count, char))
                    for char, count in Counter(self.string).items()]
 
         heapq.heapify(counter)
         heap = counter
+
+        # edge case of one character:
+        if len(heap) == 1:
+            count = heap[0][0]
+            root = Node((count, ''))
+            root.left = heap[0]
+            return root
+
         while len(heap) >= 2:
             node1, node2 = heapq.heappop(heap), heapq.heappop(heap)
             new_node = Node((node1[0] + node2[0], ''))
@@ -74,7 +83,8 @@ class HuffmanCompressor:
 
             heapq.heappush(heap, new_node)
 
-        return heap[0]
+        root = heap[0]
+        return root
 
     def _get_encode_map(self):
         '''Builds Huffman mapping of characters to binary codes'''
@@ -110,17 +120,75 @@ class HuffmanCompressor:
         bin_str = ''.join([self._encode_map[char] for char in self.string])
         return bin_str
 
-    def decode(bin_str):
-        pass
+    def decode(self, bin_str=None, error='raise'):
+        '''Returns string representation of huffman binary code.
 
+        Args:
+            bin_str(string): Huffman encoded string in binary code. Optional,
+                string attribute used if not provided.
+            errors(string): Error handling and encoding sum check.
+                'ignore': Ignores sum check error and strips last bits which
+                    does not represent any character in encoded_map
+                'warn': As ignore, but raises warning.
+                'raise': Raises attribute exception
 
+        '''
+        bin_str = bin_str if bin_str else self.encode()
 
+        decoded_str = ''
+        bit_idx = 0
+        node = self._root
+        while bit_idx < len(bin_str):
+            prev_node = node
 
-def huffman_encoding(data):
-    pass
+            # traverse Huffman tree
+            if bin_str[bit_idx] == '0':
+                node = node.left
+            elif bin_str[bit_idx] == '1':
+                node = node.right
+            else:
+                raise AssertionError('bin_str needs to be binary sequence.')
 
-def huffman_decoding(data,tree):
-    pass
+            # Update decoded string and increase bit index
+            if node:
+                char = node[1]
+                if char:
+                    decoded_str += char
+                bit_idx += 1
+
+            # Jump back to root
+            else:
+                # Prevent infinite loop for example decode
+                # '1' with Huffmant tree [(7, ''), (7, 'A'), None]
+                # or '0' with [(7, ''), None, (7, 'A')]
+                if prev_node is self._root:
+                    self._check_sum(node, 'raise')
+                else:
+                    node = self._root
+
+        # Check sum test
+        last_node = node
+        self._check_sum(last_node, error)
+
+        return decoded_str
+
+    def _check_sum(self, node, error):
+        '''Checks whether node is leaf node of Huffman Tree and raises
+        exception, warning or passes.
+        '''
+        if not (node and node[1]):
+
+            err_msg = 'Sum check of binary string failed. '
+            if error == 'ignore':
+                pass
+            elif error == 'warn':
+                warnings.warn(
+                    err_msg + 'Last non matched binary sequence stripped.')
+            elif error == 'raise':
+                raise AssertionError(err_msg)
+            else:
+                raise NotImplementedError()
+
 
 if __name__ == "__main__":
     codes = {}
@@ -130,12 +198,14 @@ if __name__ == "__main__":
     print ("The size of the data is: {}\n".format(sys.getsizeof(a_great_sentence)))
     print ("The content of the data is: {}\n".format(a_great_sentence))
 
-    encoded_data, tree = huffman_encoding(a_great_sentence)
+    hc = HuffmanCompressor(a_great_sentence)
+    encoded_data = hc.encode()
+    # encoded_data, tree = huffman_encoding(a_great_sentence)
 
     print ("The size of the encoded data is: {}\n".format(sys.getsizeof(int(encoded_data, base=2))))
     print ("The content of the encoded data is: {}\n".format(encoded_data))
 
-    decoded_data = huffman_decoding(encoded_data, tree)
+    decoded_data = hc.decode(encoded_data)
 
     print ("The size of the decoded data is: {}\n".format(sys.getsizeof(decoded_data)))
     print ("The content of the encoded data is: {}\n".format(decoded_data))
