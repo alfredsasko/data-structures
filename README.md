@@ -266,7 +266,7 @@ The encoding table is build up by depth first search algorithm. `encode()` metho
 
 The reason for k is that implementation is using while loop where bit index is only increased if current node has child nodes. For situations where algorithm hits leaf the index stays constant only pointer jumps to root to search for next character. For the length of string going to infinity, with relatively small encode table we can generalize to O(n).
 
-### 2.3. Time Complexity
+### 3.3. Time Complexity
 
 #### Method `HuffmanCompressor.encode()`
 ```
@@ -373,9 +373,9 @@ def decode(self, bin_str=None, error='raise'):
  - n - number of characters in string
  - k - number of characters in Huffman encode table
 
- ## 4. Active Directory
+## 4. Active Directory
 
- ### 4.1. Problem Description
+### 4.1. Problem Description
 In Windows Active Directory, a group can consist of user(s) and group(s) themselves. We can construct this hierarchy as such. Where User is represented by str representing their ids.
 
 ```
@@ -426,12 +426,12 @@ def is_user_in_group(user, group):
     return None
 ```
 
-### 3.2. Design Choices
+### 4.2. Design Choices
 The `is_user_in_group()` function has been embedded into `Group` class by overwriting `object.__contains__()` method using inheritance. This special internal method enables using in operator to check if user is in the `Group` class in form of `user in group`.
 
 The `Group.__contains__()` is recursive or operator checking the user membership in current group users and its all children. One's the first match is found it stops execution of the recursion. The worst case time complexity is O(n) where n is the number of users listed in group hierarchy with duplicates included.
 
-### 3.3. Time complexity
+### 4.3. Time complexity
 #### Method `Group.__contains__()`
 ```
 def __contains__(self, user):
@@ -445,3 +445,42 @@ def __contains__(self, user):
 
  - k - number of users in the Group
  - n - number of users in Group hierarchy, including duplicates
+
+## 5. Block-chain
+
+### 5.1. Problem Description
+A [Blockchain](https://en.wikipedia.org/wiki/Blockchain) is a sequential chain of records, similar to a linked list. Each block contains some information and how it is connected related to the other blocks in the chain. Each block contains a cryptographic hash of the previous block, a timestamp, and transaction data. For our blockchain we will be using a [SHA-256](https://en.wikipedia.org/wiki/SHA-2) hash, the [Greenwich Mean Time](https://en.wikipedia.org/wiki/Greenwich_Mean_Time) when the block was created, and text strings as the data.
+
+Use your knowledge of linked lists and hashing to create a block-chain implementation.
+<div style="overflow: hidden; padding: 20px 0px">
+    <img src="/assets/05_blockchain.png" style="float: left; width: 100%;"/>
+</div>
+
+We can break the block-chain down into three main parts. First is the information hash:
+```
+import hashlib
+
+def calc_hash(self):
+      sha = hashlib.sha256()
+
+      hash_str = "We are going to encode this string of data!".encode('utf-8')
+
+      sha.update(hash_str)
+
+      return sha.hexdigest()
+```
+
+We do this for the information we want to store in the block chain such as transaction time, data, and information like the previous chain. The next main component is the block on the block-chain:
+```
+class Block:
+
+    def __init__(self, timestamp, data, previous_hash):
+      self.timestamp = timestamp
+      self.data = data
+      self.previous_hash = previous_hash
+      self.hash = self.calc_hash()
+```
+
+Above is an example of attributes you could find in a `Block` class.
+
+Finally you need to link all of this together in a block chain, which you will be doing by implementing it in a linked list. All of this will help you build up to a simple but full block-chain implementation!
