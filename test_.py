@@ -152,7 +152,7 @@ class TestBlock:
     def test_init_method_valid_arg(self, data, timestamp, prev_hash):
         block = Block(data, timestamp, prev_hash)
         hash = calc_hash(str(data) + str(timestamp) + prev_hash)
-        assert ((block.data == str(data))
+        assert ((block.data == data)
                  and (block.timestamp == timestamp)
                  and (block.prev_hash == prev_hash )
                  and (block.hash == hash))
