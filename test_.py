@@ -4,10 +4,14 @@ import sys
 import os
 import pytest
 import json
+import time
 
 from lru_cache import LRU_Cache
 from find_files import FileManager
 from compression import HuffmanCompressor
+from blockchain import Block
+from blockchain import BlockChain
+from blockchain import calc_hash
 
 
 # Tests for task 1: Least Recenty Used Cache
@@ -140,3 +144,27 @@ class TestGroup:
 
     def test_contains_method_out(self, group, out_user):
         assert out_user not in group
+
+
+# Tests for task 5: Block-chain
+class TestBlock:
+
+    def test_init_method_valid_arg(self, data, timestamp, prev_hash):
+        block = Block(data, timestamp, prev_hash)
+        hash = calc_hash(str(data) + str(timestamp) + prev_hash)
+        assert ((block.data == str(data))
+                 and (block.timestamp == timestamp)
+                 and (block.prev_hash == prev_hash )
+                 and (block.hash == hash))
+
+    def test_init_method_invalid_timestamp(
+        self, data, invalid_timestamp, prev_hash):
+
+        with pytest.raises(AssertionError):
+            block = Block(data, invalid_timestamp, prev_hash)
+
+    def test_init_method_invalid_prev_hash(
+        self, data, timestamp, invalid_prev_hash):
+
+        with pytest.raises(ValueError):
+            block = Block(data, timestamp, invalid_prev_hash)

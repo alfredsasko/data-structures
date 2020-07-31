@@ -7,6 +7,8 @@ import tempfile
 import shutil
 from pathlib import Path
 import heapq
+import datetime
+import hashlib
 
 from lru_cache import LRU_Cache
 from find_files import FileManager
@@ -282,8 +284,8 @@ def sum_check_error(request):
     return request.param
 
 
-# Parameters for testing Group class
-# ----------------------------------
+# Task 4: Parameters for testing Group class
+# -------------------------------------------
 group_js = {
     'no_nested_group': {
         'name': 'root_group',
@@ -370,3 +372,54 @@ def group(group_js, user_js):
     root_group.extend_users(user_js)
     root_children = group_js['children']
     return build_group(root_group, root_children, user_js)
+
+
+# Taks 5: Parameters for testing Block class
+# ------------------------------------------
+data_dict = {
+    'string': 'string',
+    'empty_string': '',
+    'number': 1,
+    'list': ['a']
+}
+
+timestamp_dict = {
+    'current_time': datetime.datetime.now()
+}
+
+invalid_timestamp_dict = {
+    'string': '29-4-2009 10:30:28'
+}
+
+prev_hash_dict = {
+    'valid_hash': hashlib.sha256(b'string').hexdigest()
+}
+
+invalid_prev_hash_dict = {
+    'invalid_byte_hash': b'string',
+    'invalid_str_hash': 'string'
+}
+
+@fixture(params=data_dict.values(), ids=data_dict.keys())
+def data(request):
+    return request.param
+
+@fixture(params=timestamp_dict.values(), ids=timestamp_dict.keys())
+def timestamp(request):
+    return request.param
+
+@fixture(params=invalid_timestamp_dict.values(),
+         ids=invalid_timestamp_dict.keys())
+
+def invalid_timestamp(request):
+    return request.param
+
+@fixture(params=prev_hash_dict.values(), ids=prev_hash_dict.keys())
+def prev_hash(request):
+    return request.param
+
+@fixture(params=invalid_prev_hash_dict.values(),
+         ids=invalid_prev_hash_dict.keys())
+
+def invalid_prev_hash(request):
+    return request.param
