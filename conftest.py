@@ -10,8 +10,9 @@ import heapq
 
 from lru_cache import LRU_Cache
 from find_files import FileManager
+from active_directory import Group
 
-# Parameters for testing LRU_Chache class
+# Task 1: Parameters for testing LRU_Chache class
 # ---------------------------------------
 
 # init method
@@ -78,8 +79,8 @@ def full_capacity_cache(cache):
     return new_key, new_value, rlu_key, rlu_value, cache
 
 
-# Parameters for testing FileManager
-# ---------------------------------------
+# Task 2: Parameters for testing FileManager
+# ------------------------------------------
 
 # set here the source and temporary directory for testing
 # to ensure that source directory will not be modified by test
@@ -160,8 +161,8 @@ def right_files(request):
     return request.param
 
 
-# Parameters for testing HuffmanCompressor
-# ---------------------------------------
+# Task 3: Parameters for testing HuffmanCompressor
+# ----------------------------------------------
 
 valid_hf_set_dict = {
     'upper_case_sequence': {
@@ -271,10 +272,101 @@ def invalid_str(request):
 def invalid_hf_set(request):
     return request.param['string'], request.param['encoded_string']
 
-@fixture(params=invalid_sum_check_set_dict.values(), ids=invalid_sum_check_set_dict.keys())
+@fixture(params=invalid_sum_check_set_dict.values(),
+         ids=invalid_sum_check_set_dict.keys())
 def invalid_sum_check_set(request):
     return request.param['string'], request.param['encoded_string']
 
 @fixture(params=sum_check_error_dict.values(), ids=sum_check_error_dict.keys())
 def sum_check_error(request):
     return request.param
+
+
+# Parameters for testing Group class
+# ----------------------------------
+group_js = {
+    'no_nested_group': {
+        'name': 'root_group',
+        'children': []
+    },
+
+    'nested_group': {
+        "name": "root_group",
+        "children": [
+            {
+                "name": "child_group",
+                "children": []
+            }
+        ]
+    },
+
+    'multiple_nested_group': {
+        "name": "root_group",
+        "children": [
+            {
+                "name": "child_group1",
+                "children": [
+                    {
+                        "name": "grand_child1",
+                        "children": []
+                    },
+                    {
+                        "name": "grand_child2",
+                        "children": []
+                    }
+                ]
+            },
+            {
+                "name": "child_group2",
+                "children": []
+            }
+        ]
+    }
+}
+
+user_js = {
+    # 'no_user': [],
+    'single_user': ['user_1'],
+    'multiple_users': ['user_1', 'user_2', 'user_3']
+}
+
+in_user_dict = {
+    'in_user': 'user_1'
+}
+
+out_user_dict = {
+    'out_user': 'out_user',
+    'no_user': ''
+}
+
+@fixture(params=in_user_dict.values(), ids=in_user_dict.keys())
+def in_user(request):
+    return request.param
+
+@fixture(params=out_user_dict.values(), ids=out_user_dict.keys())
+def out_user(request):
+    return request.param
+
+@fixture(params=user_js.values(), ids=user_js.keys())
+def user_js(request):
+    return request.param
+
+@fixture(params=group_js.values(), ids=group_js.keys())
+def group_js(request):
+    return request.param
+
+@fixture
+def group(group_js, user_js):
+
+    def build_group(parent_group, children, users):
+        for child in children:
+            child_group = Group(child['name'])
+            child_group.extend_users(users)
+            child_group = build_group(child_group, child['children'], users)
+            parent_group.add_group(child_group)
+        return parent_group
+
+    root_group = Group(group_js['name'])
+    root_group.extend_users(user_js)
+    root_children = group_js['children']
+    return build_group(root_group, root_children, user_js)

@@ -1,7 +1,9 @@
 '''Modul contains test methods for 7 data structure tasks'''
 
-import pytest
+import sys
 import os
+import pytest
+import json
 
 from lru_cache import LRU_Cache
 from find_files import FileManager
@@ -128,3 +130,13 @@ class TestHuffmanCompressor:
         else:
             with pytest.raises(NotImplementedError):
                 decoded_str = hc.decode(invalid_encoded_str, sum_check_error)
+
+
+# Tests for task 4: Active Directory
+class TestGroup:
+
+    def test_contains_method_in(self, group, in_user):
+        assert in_user in group
+
+    def test_contains_method_out(self, group, out_user):
+        assert out_user not in group
