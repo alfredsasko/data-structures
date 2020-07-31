@@ -425,3 +425,23 @@ def is_user_in_group(user, group):
     """
     return None
 ```
+
+### 3.2. Design Choices
+The `is_user_in_group()` function has been embedded into `Group` class by overwriting `object.__contains__()` method using inheritance. This special internal method enables using in operator to check if user is in the `Group` class in form of `user in group`.
+
+The `Group.__contains__()` is recursive or operator checking the user membership in current group users and its all children. One's the first match is found it stops execution of the recursion. The worst case time complexity is O(n) where n is the number of users listed in group hierarchy with duplicates included.
+
+### 3.3. Time complexity
+#### Method `Group.__contains__()`
+```
+def __contains__(self, user):
+    return ((user in self.users)
+            or any(group.__contains__(user) for group in self.groups))
+```
+| Command             	| Time Complexity 	|
+|---------------------	|:---------------:	|
+| list.__contains__() 	|       O(k)      	|
+| Worst Total         	|       O(n)      	|
+
+ - k - number of users in the Group
+ - n - number of users in Group hierarchy, including duplicates
